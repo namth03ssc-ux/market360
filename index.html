@@ -417,12 +417,15 @@ function columns(id,data,{unit="",dec=0,labelEvery=1}={}){
 }
 // VN-Index và VN-Index không gồm họ Vin
 function exvin(R,asof){
-  const box=document.getElementById("c-exvin"),W=760,H=260,m={l:44,r:12,t:10,b:26};
+  const box=document.getElementById("c-exvin"),W=760,H=260,m={l:44,r:70,t:10,b:26};
   const svg=el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img"},box);const tip=tipFor(box);
   const lo=900,hi=2000,x=i=>m.l+i/(R.length-1)*(W-m.l-m.r),y=v=>m.t+(hi-v)/(hi-lo)*(H-m.t-m.b);
   [1000,1200,1400,1600,1800,2000].forEach(t=>{el("line",{x1:m.l,x2:W-m.r,y1:y(t),y2:y(t),class:"gridline"},svg);const tx=el("text",{x:m.l-6,y:y(t)+4,"text-anchor":"end"},svg);tx.textContent=fmt(t);});
   R.forEach((r,i)=>{if(i&&r[0].slice(0,2)!==R[i-1][0].slice(0,2)){const tx=el("text",{x:x(i),y:H-8,"text-anchor":"middle"},svg);tx.textContent="20"+r[0].slice(0,2);}});
   [[1,"var(--s1)"],[2,"var(--gold)"]].forEach(([k,c])=>el("path",{d:R.map((r,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(r[k]).toFixed(1)).join(""),fill:"none",stroke:c,"stroke-width":2,"stroke-linejoin":"round"},svg));
+  /* nhãn số điểm mới nhất ở cuối hai đường (v74); đẩy hai nhãn xa nhau nếu quá gần */
+  {const L=R[R.length-1],xe=x(R.length-1);let ya=y(L[1]),yb=y(L[2]);if(Math.abs(ya-yb)<16){const mid=(ya+yb)/2,s=ya<=yb?-1:1;ya=mid+s*8;yb=mid-s*8}
+   [[L[1],y(L[1]),ya,"var(--s1)"],[L[2],y(L[2]),yb,"var(--gold)"]].forEach(([v,yd,yt,c])=>{el("circle",{cx:xe,cy:yd,r:3.5,fill:c},svg);const t=el("text",{x:xe+7,y:yt+4,"text-anchor":"start",fill:c,style:"font-weight:600;font-size:14px;fill:"+c},svg);t.textContent=fmt(v,0);});}
   const cross=el("line",{y1:m.t,y2:H-m.b,stroke:"var(--muted)","stroke-width":1,opacity:0},svg);
   const hit=el("rect",{x:m.l,y:m.t,width:W-m.l-m.r,height:H-m.t-m.b,class:"hit"},svg);
   hit.addEventListener("pointermove",e=>{const b=svg.getBoundingClientRect(),sc=b.width/W,i=Math.max(0,Math.min(R.length-1,Math.round(((e.clientX-b.left)/sc-m.l)/(W-m.l-m.r)*(R.length-1)))),r=R[i];
