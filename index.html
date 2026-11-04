@@ -591,7 +591,7 @@ fetch("data.json",{cache:"no-store"}).then(r=>r.json()).then(D=>{
       {n:"Chỉ số",num:1,f:r=>r.last,h:r=>`<td class="num">${fmt(r.last,2)}</td>`},
       ...P.map(([n],k)=>({n:n+" %",num:1,f:r=>r.r[k],h:r=>`<td class="num ${r.r[k]>0?"up":r.r[k]<0?"down":""}" ${heat(r.r[k])}>${pct(r.r[k])}</td>`})),
       {n:"52 tuần",h:r=>`<td>${spark(r.v)}</td>`}],rows,3);}
-  if(D.rank){const R=D.rank,N=Math.min(20,R.d.length),idx=[...Array(N)].map((_,i)=>R.d.length-1-i);
+  if(D.rank&&D.rank.d.length){const R=D.rank,N=Math.min(20,R.d.length),idx=[...Array(N)].map((_,i)=>R.d.length-1-i);
     const avg=ts=>R.d.map((_,j)=>{const v=ts.map(t=>R.tk[t]&&R.tk[t][j]).filter(x=>x!=null);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null;});
     const secs=R.sec.map(([c,n,ts])=>({c,n,ts,v:avg(ts)})),L=R.d.length-1;
     const pal=[[20,"#c3c8cf","#0b1220"],[35,"#8a929c","#0b1220"],[50,"#4a525c","#e8eef6"],[60,"#14532d","#e8eef6"],[70,"#15803d","#ffffff"],[80,"#22c55e","#052e16"],[90,"#a855f7","#ffffff"],[101,"#d8b4fe","#2e1065"]];
@@ -615,7 +615,7 @@ fetch("data.json",{cache:"no-store"}).then(r=>r.json()).then(D=>{
     };
     $("rk-body").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(b){cur=b.dataset.c;draw();$("rk-back").focus();}});
     $("rk-back").addEventListener("click",()=>{const c=cur;cur=null;draw();const b=$("rk-body").querySelector(`button[data-c="${c}"]`);b&&b.focus();});
-    $("rk-sub").textContent=`Điểm 0–100 của mỗi mã là RS Rating tổng hợp của TCBS: sức mạnh giá tương đối so với toàn thị trường, gộp các khung 3 ngày, 1 tháng, 3 tháng và 1 năm. Điểm ngành là trung bình các mã đại diện (${Object.keys(R.tk).length} mã thanh khoản cao, 15 ngành ICB cấp 2). Xếp theo phiên mới nhất ${ddmm(R.d[L])}. Bấm vào tên ngành để xem từng mã.`;
+    $("rk-sub").textContent=`Điểm 1–99 của mỗi mã là thứ hạng phần trăm của sức mạnh giá 3 tháng (RS3M, VCBS) so với khoảng 1.530 mã toàn thị trường: 99 là mạnh nhất. Nguồn VCBS từ 4/11/2026; số TCBS trước đó không trộn vào vì khác cách tính. Điểm ngành là trung bình các mã đại diện (${Object.keys(R.tk).length} mã thanh khoản cao, 15 ngành ICB cấp 2). Xếp theo phiên mới nhất ${ddmm(R.d[L])}. Bấm vào tên ngành để xem từng mã.`;
     draw();}
   if(D.secc){const C=D.secc,R=C.rows,top=R.filter(r=>r[1]>0).slice(0,8),bot=R.filter(r=>r[1]<0).slice(-8);
     $("nc-sub").textContent=`Phiên ${ddmm(C.date)}, điểm đóng góp theo ngành ICB cấp 3 (VCBS). VN-Index ${C.idx!=null?sgn(C.idx,2)+" điểm":""}. Hiện 8 ngành kéo tăng và 8 ngành kéo giảm nhiều nhất.`;
