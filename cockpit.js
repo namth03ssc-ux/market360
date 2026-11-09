@@ -49,7 +49,8 @@ const PLANETS=[
  {id:"macro",kind:"galaxy",lv:"Tầng 1 · Thiên hà",name:"Vĩ mô",c1:"#ffd27a",c2:"#b86b1f",sec:"vi-mo",hint:"Lực hấp dẫn lớn nhất: lãi suất, tỷ giá, dòng vốn quỹ chi phối mọi thứ bên trong."},
  {id:"market",kind:"star",lv:"Tầng 2 · Hệ sao",name:"Thị trường",c1:"#fff1b0",c2:"#f0a32c",sec:"thi-truong",hint:"VN-Index là ngôi sao trung tâm; dòng tiền, độ rộng và định giá là ánh sáng của nó."},
  {id:"sector",kind:"planet",lv:"Tầng 3 · Hành tinh",name:"Ngành",c1:"#c9a2ff",c2:"#5b33a8",sec:"nganh",hint:"Mỗi ngành là một hành tinh quay quanh thị trường, mạnh yếu theo điểm RS."},
- {id:"stock",kind:"moon",lv:"Tầng 4 · Vệ tinh",name:"Cổ phiếu",c1:"#e6e9ef",c2:"#7d8696",sec:"co-phieu",hint:"Cổ phiếu là vệ tinh quay quanh ngành của nó. Chọn mã sau khi đã xem ba tầng trên."}];
+ {id:"stock",kind:"moon",lv:"Tầng 4 · Vệ tinh",name:"Cổ phiếu",c1:"#e6e9ef",c2:"#7d8696",sec:"co-phieu",hint:"Cổ phiếu là vệ tinh quay quanh ngành của nó. Chọn mã sau khi đã xem ba tầng trên."},
+ {id:"msg",kind:"bridge",lv:"Tín hiệu",name:"Thông điệp từ vũ trụ",short:"Thông điệp",c1:"#9ff0d4",c2:"#1f7a63",sec:null,hint:"Các bài phân tích chuyên đề, mở ở trang riêng."}];
 
 function viewHome(S){const v=S.vni,o=[];
   const pos=S.hi52?(v.c-S.lo52)/(S.hi52-S.lo52):null;
@@ -84,12 +85,18 @@ function viewStock(S){const o=[],sets=[["Vượt đỉnh 52 tuần","up"],["Phá
   sets.forEach(([n,c])=>{const s=S.sets[n];if(!s)return;o.push(card(n,`<ul class="tk">${s.rows.slice(0,10).map(r=>`<li><b>${esc(r[0])}</b><span>${esc(r[2]||"")}</span><em class="${cls(r[6])}">${sgn(r[6],1)}%</em></li>`).join("")}</ul><p class="note">% là thay đổi giá 1 tuần. ${esc(s.cond||"")}</p>`,{cls:"c-"+c,sub:s.count?s.count+" mã":""}))});
   if(S.top&&S.top.src)o.push(card("Điểm xếp hạng nhóm SSI100",`<div class="g4">${S.top.src.map(s=>`<div><h4>${esc(s.n)}</h4><ol>${s.rows.slice(0,5).map(r=>`<li><b>${esc(r[0])}</b><em>${fmt(r[1],s.dec||0)}</em></li>`).join("")}</ol></div>`).join("")}</div>`,{span:2,sub:"Cập nhật "+dm(S.top.date)}));
   return o.join("")}
-const VIEWS={home:viewHome,macro:viewMacro,market:viewMarket,sector:viewSector,stock:viewStock};
+/* Thông điệp từ vũ trụ: danh sách bài chuyên đề, mỗi bài là một trang riêng trên GitHub Pages */
+const MSGS=[
+ {t:"VN-Index và các lần NHNN mua ngoại tệ",d:"09/11/2026",u:"https://namth03ssc-ux.github.io/market360/nhnn/",x:"Biểu đồ VN-Index 5 năm ghim các mốc NHNN mua ngoại tệ, tỷ giá mua can thiệp (25.500 từ 11/11/2026) và phản ứng chỉ số sau 5/20/60 phiên."}
+];
+function viewMsg(S){return MSGS.map(m=>card(m.t,`<p class="note">${esc(m.d)}</p><p>${esc(m.x)}</p><p><a class="go" href="${m.u}" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;color:var(--gold);border-color:var(--gold)">Mở trang phân tích ↗</a></p>`,{span:2})).join("")}
+const VIEWS={home:viewHome,msg:viewMsg,macro:viewMacro,market:viewMarket,sector:viewSector,stock:viewStock};
 function talk(id,S){const L=[];const v=S.vni;
   if(id==="home"){L.push(`VN-Index ${S.vch>=0?"tăng":"giảm"} ${fmt(Math.abs(S.vch),2)} điểm, đóng cửa ${fmt(v.c,2)}.`);if(S.f)L.push(`Khối ngoại ${S.f[1]<0?"bán":"mua"} ròng ${fmt(Math.abs(S.f[1]),0)} tỷ, ${S.fst} phiên liên tiếp.`);if(S.hi52)L.push(S.fromHi>=0?"VN-Index đang ở đỉnh 52 tuần!":`Còn cách đỉnh 52 tuần ${fmt(-S.fromHi,1)}%.`);if(S.b)L.push(`Phiên ${S.b[0]}: ${S.b[1]} mã tăng, ${S.b[2]} mã giảm.`)}
   if(id==="macro"){if(S.gb)L.push(`Lợi suất TPCP 10 năm ${fmt(S.gb.last[1],2)}%.`);const f=last(S.fx);if(f)L.push(`USD/VND bán ra ${fmt(f[2],0)} đồng.`)}
   if(id==="market"){if(S.mk)L.push(`P/E ${fmt(S.mk[1],2)} lần, ${fmt(S.mk[3],0)}% mã trên MA20.`);if(S.p)L.push(`Tự doanh ${S.p[1]<0?"bán":"mua"} ròng ${fmt(Math.abs(S.p[1]),0)} tỷ phiên ${S.p[0]}.`);L.push(`Từ ${S.fo[0]?.[0]}: ngoại ${S.fsum<0?"bán":"mua"} ròng ${fmt(Math.abs(S.fsum),0)} tỷ.`)}
   if(id==="sector"){const t=S.rank[0],w=last(S.rank);if(t)L.push(`Ngành mạnh nhất: ${t.name}, RS ${fmt(t.lv,0)}.`);if(w)L.push(`Yếu nhất: ${w.name}, RS ${fmt(w.lv,0)}.`);if(S.secc.length){L.push(`${S.secc[0][0]} góp nhiều nhất, ${sgn(S.secc[0][1],2)} điểm.`);L.push(`${last(S.secc)[0]} kéo mạnh nhất, ${sgn(last(S.secc)[1],2)} điểm.`)}}
+  if(id==="msg"){L.push(`Có ${MSGS.length} thông điệp mới. Gần nhất: ${MSGS[0].t}.`);L.push("NHNN mua ngoại tệ giao ngay từ 11/11/2026, tỷ giá 25.500.")}
   if(id==="stock"){const a=S.sets["Vượt đỉnh 52 tuần"],b=S.sets["Phá đáy 52 tuần"];if(a)L.push(`Vượt đỉnh 52 tuần: ${a.rows.slice(0,3).map(r=>r[0]).join(", ")}.`);if(b)L.push(`Phá đáy 52 tuần: ${b.rows.slice(0,3).map(r=>r[0]).join(", ")}.`)}
   return L.length?L:["Chưa có số liệu cho khu vực này."]}
 
@@ -314,7 +321,7 @@ function build(D){const S=digest(D),MK=moodOf(S.vpc),MO=MOODS[MK];
   function go(id,first){const p=PLANETS.find(x=>x.id===id)||PLANETS[0];cur=p;
     root.querySelectorAll("[data-p]").forEach(b=>b.setAttribute("aria-current",b.dataset.p===id));
     try{localStorage.setItem("m360-ship-p",id)}catch(e){}
-    const paint=()=>{$(".dest .pl").innerHTML=planetSVG(p,"d");$(".dest h2").textContent=p.name;$(".dest .ey").textContent=p.lv;$(".dest .hint").textContent=p.hint;putBack();grid.innerHTML=id==="home"?VIEWS.home(S):"";borrow(id);grid.classList.remove("out");host.classList.remove("out");
+    const paint=()=>{$(".dest .pl").innerHTML=planetSVG(p,"d");$(".dest h2").textContent=p.name;$(".dest .ey").textContent=p.lv;$(".dest .hint").textContent=p.hint;putBack();grid.innerHTML=(id==="home"||id==="msg")?VIEWS[id](S):"";$("[data-go]").hidden=id==="msg";borrow(id);grid.classList.remove("out");host.classList.remove("out");
       $("[data-go]").dataset.sec=p.sec||"";lines=talk(id,S);li=0;speak();main.scrollTop=0};
     if(first||REDUCED){paint();return}warp=1;grow=.15;grid.classList.add("out");host.classList.add("out");setTimeout(paint,380)}
   /* mượn nguyên các khung của giao diện cũ (không sao chép, không cắt): chuyển vào hành tinh, trả về chỗ cũ khi rời đi */
